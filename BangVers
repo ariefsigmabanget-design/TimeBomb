@@ -1,0 +1,171 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TimeBombGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") 
+
+local Frame = Instance.new("Frame")
+Frame.Name = "MainFrame"
+Frame.Size = UDim2.new(0, 220, 0, 180)
+Frame.Position = UDim2.new(0.5, -110, 0.4, -90)
+Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true 
+Frame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = Frame
+
+local FrameStroke = Instance.new("UIStroke")
+FrameStroke.Color = Color3.fromRGB(255, 255, 255)
+FrameStroke.Thickness = 1.5
+FrameStroke.Parent = Frame
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "TimeBomb"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 20
+Title.Font = Enum.Font.GothamBold
+Title.Parent = Frame
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Size = UDim2.new(0, 180, 0, 45)
+ToggleButton.Position = UDim2.new(0.5, -90, 0, 45)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleButton.Text = "Auto Play: OFF"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 14
+ToggleButton.Font = Enum.Font.GothamMedium
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Parent = Frame
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 8)
+ButtonCorner.Parent = ToggleButton
+
+local ButtonStroke = Instance.new("UIStroke")
+ButtonStroke.Color = Color3.fromRGB(60, 60, 60)
+ButtonStroke.Thickness = 1
+ButtonStroke.Parent = ToggleButton
+
+local InfoLabel = Instance.new("TextLabel")
+InfoLabel.Name = "InfoLabel"
+InfoLabel.Size = UDim2.new(1, 0, 0, 40)
+InfoLabel.Position = UDim2.new(0, 0, 0, 95)
+InfoLabel.BackgroundTransparency = 1
+InfoLabel.Text = "PC players:\nPress [E] to toggle ON/OFF"
+InfoLabel.TextColor3 = Color3.fromRGB(160, 160, 160)
+InfoLabel.TextSize = 11
+InfoLabel.Font = Enum.Font.Gotham
+InfoLabel.Parent = Frame
+
+local CreditsBar = Instance.new("Frame")
+CreditsBar.Name = "CreditsBar"
+CreditsBar.Size = UDim2.new(1, 0, 0, 30)
+CreditsBar.Position = UDim2.new(0, 0, 1, -30)
+CreditsBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CreditsBar.BorderSizePixel = 0
+CreditsBar.Parent = Frame
+
+local CreditsCorner = Instance.new("UICorner")
+CreditsCorner.CornerRadius = UDim.new(0, 12)
+CreditsCorner.Parent = CreditsBar
+
+local TopCover = Instance.new("Frame")
+TopCover.Size = UDim2.new(1, 0, 0, 10)
+TopCover.Position = UDim2.new(0, 0, 0, 0)
+TopCover.BorderSizePixel = 0
+TopCover.BackgroundColor3 = Color3.fromRGB(10, 20, 60)
+TopCover.Parent = CreditsBar
+
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 20, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+})
+Gradient.Rotation = 90
+Gradient.Parent = CreditsBar
+
+local CreditsText = Instance.new("TextLabel")
+CreditsText.Size = UDim2.new(1, 0, 1, 0)
+CreditsText.BackgroundTransparency = 1
+CreditsText.Text = "Credits: VersMandex🇮🇩"
+CreditsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditsText.TextSize = 11
+CreditsText.Font = Enum.Font.GothamBold
+CreditsText.Parent = CreditsBar
+
+local isToggled = false
+
+local function getNearestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+    local localChar = LocalPlayer.Character
+    
+    if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then 
+        return nil 
+    end
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (localChar.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+    return closestPlayer
+end
+
+local function toggleSystem()
+    isToggled = not isToggled
+    
+    if isToggled then
+        ToggleButton.Text = "Auto Play: ON"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ToggleButton.TextColor3 = Color3.fromRGB(15, 15, 15)
+        ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+    else
+        ToggleButton.Text = "Auto Play: OFF"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ButtonStroke.Color = Color3.fromRGB(60, 60, 60)
+    end
+end
+
+ToggleButton.MouseButton1Click:Connect(toggleSystem)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end 
+    if input.KeyCode == Enum.KeyCode.E then
+        toggleSystem()
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if not isToggled then return end
+    
+    local char = LocalPlayer.Character
+    if not char then return end
+    
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local holdingSomething = char:FindFirstChildOfClass("Tool") 
+    
+    if humanoid and holdingSomething then
+        local targetPlayer = getNearestPlayer()
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            humanoid:MoveTo(targetPlayer.Character.HumanoidRootPart.Position)
+        end
+    end
+end)
